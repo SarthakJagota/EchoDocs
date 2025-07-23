@@ -1,10 +1,13 @@
 from flask import Flask, request, jsonify
 import google.generativeai as genai
+app = Flask("EchoDocs")
 
-app = Flask(__EchoDocs__)
 
 genai.configure(api_key="YOUR_API_KEY")
 model = genai.GenerativeModel("gemini-1.5-flash")
+@app.route("/", methods=["GET"])
+def home():
+    return "✅ EchoDocs server is running. Use POST /ask to query."
 
 @app.route("/ask", methods=["POST"])
 def ask():
