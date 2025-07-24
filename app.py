@@ -3,7 +3,9 @@ import google.generativeai as genai
 app = Flask("EchoDocs")
 
 
-genai.configure(api_key="YOUR_API_KEY")
+import os
+genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
+
 model = genai.GenerativeModel("gemini-1.5-flash")
 @app.route("/", methods=["GET"])
 def home():
