@@ -4,8 +4,8 @@ import google.generativeai as genai
 import requests
 import os
 import tempfile
+app = Flask(__name__)
 
-app = Flask(_name_)
 
 # ✅ Use env variable from Render dashboard
 genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
