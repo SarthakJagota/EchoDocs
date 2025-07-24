@@ -8,8 +8,8 @@ model = genai.GenerativeModel("gemini-1.5-flash")
 @app.route("/", methods=["GET"])
 def home():
     return "✅ EchoDocs server is running. Use POST /ask to query."
-
-@app.route("/ask", methods=["POST"])
+    
+@app.route("/hackrx/run", methods=["POST"])
 def ask():
     data = request.get_json()
     query = data.get("query", "")
