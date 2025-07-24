@@ -5,7 +5,8 @@ import requests
 import os
 import tempfile
 
-app = Flask(_name_)
+app = Flask(__name__)
+
 
 # 👇 Replace with your actual environment variable on Render
 genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
