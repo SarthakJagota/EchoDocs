@@ -5,10 +5,9 @@ import requests
 import os
 import tempfile
 
-app = Flask(__name__)
+app = Flask(_name_)
 
-
-# 👇 Replace with your actual environment variable on Render
+# ✅ Use env variable from Render dashboard
 genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
 model = genai.GenerativeModel("gemini-1.5-flash")
 
@@ -17,44 +16,37 @@ def home():
     return "✅ EchoDocs server is running. Use POST /hackrx/run to query."
 
 @app.route("/hackrx/run", methods=["POST"])
-def ask():
+def hackrx_run():
     data = request.get_json()
 
     pdf_url = data.get("documents")
-    questions = data.get("questions", [])
+    questions = data.get("questions")
 
     if not pdf_url or not questions:
         return jsonify({"error": "Missing document or questions"}), 400
 
     try:
-        # ⬇ Download the PDF temporarily
+        # 📥 Download the PDF
         response = requests.get(pdf_url)
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_pdf:
-            tmp_pdf.write(response.content)
-            tmp_pdf_path = tmp_pdf.name
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+            tmp.write(response.content)
+            pdf_path = tmp.name
 
-        # ⬇ Read PDF content
-        reader = PdfReader(tmp_pdf_path)
-        text = ""
+        # 📖 Read text from PDF
+        reader = PdfReader(pdf_path)
+        full_text = ""
         for page in reader.pages:
-            text += page.extract_text() or ""
+            full_text += page.extract_text() or ""
 
-        # ⬇ Gemini prompt
-        prompt = f"""
-You are a helpful assistant. Answer the following questions using ONLY the context provided below from the PDF.
-
-📄 CONTEXT:
-{text}
-
-❓ QUESTIONS:
-"""
+        # 🧠 Prepare prompt
+        prompt = f"""You are a helpful assistant. Use ONLY the context below to answer the questions:\n\n📄 CONTEXT:\n{full_text}\n\n❓ QUESTIONS:\n"""
         for q in questions:
             prompt += f"- {q}\n"
 
         gemini_response = model.generate_content(prompt)
-        answers = gemini_response.text.strip()
+        answer = gemini_response.text.strip()
 
-        return jsonify({"answers": answers})
+        return jsonify({"answers": answer})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
